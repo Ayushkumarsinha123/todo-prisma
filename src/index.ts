@@ -1,57 +1,20 @@
-import express from "express";
-import { prisma } from "../lib/prisma.js"; // MUST include .js for ES Modules
-
+import userRoutes from './routes/user.route.js';
+import express from 'express';
+console.log("🕵️ SERVER IS CONNECTED TO:", process.env.DATABASE_URL);
 const app = express();
 app.use(express.json());
 
-// 1. Create user with a todo (Equivalent to the first half of your script.ts)
-app.post("/users", async (req, res) => {
-  try {
-    const user = await prisma.user.create({
-      data: {
-        name: "Alice",
-        email: `alice-${Date.now()}@prisma.io`, // Ensures unique email on multiple clicks
-        password: "securepassword",
-        todos: {
-          create: {
-            title: "Hello World",
-            description: "This is my first todo via Express!",
-            done: false,
-          },
-        },
-      },
-      include: {
-        todos: true,
-      },
-    });
+//routes 
+app.use('/users', userRoutes);
 
-    console.log("Created user:", user);
-    res.status(201).json({ message: "User created successfully", user });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to create user" });
-  }
-});
+// simple health check for api 
 
-// 2. Fetch all users (Equivalent to the second half of your script.ts)
-app.get("/users", async (req, res) => {
-  try {
-    const allUsers = await prisma.user.findMany({
-      include: {
-        todos: true,
-      },
-    });
+app.get('/', (req, res) => {
+  res.status(200).json({message:"api is running"});
+})
 
-    console.log("All users:", JSON.stringify(allUsers, null, 2));
-    res.status(200).json(allUsers);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to fetch users" });
-  }
-});
-
-// Start the Express server
 const PORT = 3000;
+
 app.listen(PORT, () => {
-  console.log(`🚀 Server is running on http://localhost:${PORT}`);
-});
+  console.log(`server s running on port--${PORT} `);
+})
